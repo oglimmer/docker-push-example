@@ -1,4 +1,4 @@
-FROM node
+FROM node:slim
 
 COPY . /opt/alpha-test-1
 
