@@ -36,7 +36,7 @@ jobs:
         with:
           tag-edge: true
           images: |
-            ghcr.io/${{ env.IMAGE_NAME }}
+            ${{ env.IMAGE_NAME }}
           tag-semver: |
             {{version}}
             {{major}}.{{minor}}
