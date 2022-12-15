@@ -7,6 +7,7 @@ on:
 
 
 env:
+  NODE_VERSION: 16.x
   DOCKER_PLATFORMS: linux/amd64
   IMAGE_NAME: ghcr.io/oglimmer/test-alpha-1
 
@@ -20,6 +21,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx
+
+      - name: Docker meta
+        id: docker_meta
+        uses: marcelcoding/ghaction-docker-meta@v1
+        with:
+          tag-edge: true
+          images: |
+            ghcr.io/${{ env.IMAGE_NAME }}
+          tag-semver: |
+            {{version}}
+            {{major}}.{{minor}}
 
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
@@ -37,3 +57,8 @@ jobs:
           context: .
           push: true
           tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
